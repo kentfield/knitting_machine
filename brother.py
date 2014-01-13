@@ -27,26 +27,25 @@ from array import *
 __version__ = '1.0'
 
 # Some file location constants
-initPatternOffset = 0x06DF # programmed patterns start here, grow down
-currentPatternAddr = 0x07EA # stored in MSN and following byte
-currentRowAddr = 0x06FF
-nextRowAddr = 0x072F
-currentRowNumberAddr = 0x0702
-carriageStatusAddr = 0x070F
-selectAddr = 0x07EA
+initPatternOffset = 0x7eDF # programmed patterns start here, grow down
+currentPatternAddr = 0x7fEA # stored in MSN and following byte
+currentRowAddr = 0x7eFF
+nextRowAddr = 0x7f2F
+currentRowNumberAddr = 0x7f02
+carriageStatusAddr = 0x7f0F
+selectAddr = 0x7fEA
 
 
 
 # various unknowns which are probably something we care about
-unknownList = {'0700':0x0700, '0701':0x0701,
-               '0704':0x0704, '0705':0x0705, '0706':0x0706, '0707':0x0707,
-               '0708':0x0708, '0709':0x0709, '070A':0x070A, '070B':0x070B,
-               '070C':0x070C, '070D':0x070D, '070E':0x070E, '0710':0x0710,
-               '0711':0x0711, '0712':0x0712, '0713':0x0713, '0714':0x0714,
-               '0715':0x0715}
+unknownList = {'7f00':0x7f00, '7f01':0x7f01,
+               '7f04':0x7f04, '7f05':0x7f05, '7f06':0x7f06, '7f07':0x7f07,
+               '7f08':0x7f08, '7f09':0x7f09, '7f0A':0x7f0A, '7f0B':0x7f0B,
+               '7f0C':0x7f0C, '7f7D':0x7f0D, '7f0E':0x7f0E, '7f10':0x7f10,
+               '7f11':0x7f11, '7f12':0x7f12, '7f13':0x7f13, '7f14':0x7f14,
+               '7f15':0x7f15}
 
 def nibbles(achar):
-    #print '0x%02X' % ord(achar)
     msn = (ord(achar) & 0xF0) >> 4
     lsn = ord(achar) & 0x0F
     return msn, lsn
@@ -104,10 +103,10 @@ class brotherFile(object):
             print 'Unable to open brother file <%s>' % fn
             raise
         try:
-            self.data = self.df.read(2048)
+            self.data = self.df.read(32768)
             self.df.close()
         except:
-            print 'Unable to read 2048 bytes from file <%s>' % fn
+            print 'Unable to read 32768 bytes from file <%s>' % fn
             raise
         self.dfn = fn
         return
@@ -127,7 +126,6 @@ class brotherFile(object):
 
         if self.verbose:
             print "* writing ", hex(b), "to", hex(index)
-        #print dataarray
 
         # this is the actual edit
         dataarray[index] = chr(b)
@@ -143,6 +141,7 @@ class brotherFile(object):
     def getIndexedNibble(self, offset, nibble):
         # nibbles is zero based
         bytes = nibble/2
+	
         m, l = nibbles(self.data[offset-bytes])
         if nibble % 2:
             return m
@@ -150,7 +149,7 @@ class brotherFile(object):
             return l
 
     def getRowData(self, pattOffset, stitches, rownumber):
-        row=array('B')
+	row=array('B')
         nibspr = nibblesPerRow(stitches)
         startnib = nibspr * rownumber
         endnib = startnib + nibspr
@@ -326,7 +325,7 @@ class brotherFile(object):
 
     def motifData(self):
         motiflist = []
-        addr = 0x07FB
+        addr = 0x7FFB
         for i in range(6):
             mph, mpt = nibbles(self.data[addr])
             if mph & 8:
@@ -344,7 +343,7 @@ class brotherFile(object):
         return motiflist
 
     def patternPosition(self):
-        addr = 0x07FE
+        addr = 0x7FFE
         foo, ph = nibbles(self.data[addr])
         if ph & 8:
             ph = ph - 8
@@ -359,19 +358,19 @@ class brotherFile(object):
     # these are hardcoded for now
     def unknownOne(self):
         info = array('B')
-        for i in range(0x06E0, 0x06E5):
+        for i in range(0x7EE0, 0x7EE5):
             info.append(ord(self.data[i]))
         return info
 
     def unknownMemoRange(self):
         info = array('B')
-        for i in range(0x0731, 0x0787):
+        for i in range(0x7F31, 0x7F87):
             info.append(ord(self.data[i]))
         return info
 
     def unknownEndRange(self):
         info = array('B')
-        for i in range(0x07D0, 0x07E9):
+        for i in range(0x7FD0, 0x7FE9):
             info.append(ord(self.data[i]))
         return info
 

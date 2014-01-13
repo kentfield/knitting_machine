@@ -126,7 +126,7 @@ if patt == 0:
         # now we're onto data data
 
         # dump the first program
-        pointer = 0x6DF      # this is the 'bottom' of the memory
+        pointer = 0x76DF      # this is the 'bottom' of the memory
         for i in range(99):
             # of course, not all patterns will get dumped
             pattused = bf.getIndexedByte(i*7)
@@ -177,7 +177,7 @@ if patt == 0:
                 print ""
             pointer -=  bytesPerPattern(stitches, rows)
 
-        #for i in range (0x06DF, 99*7, -1):
+        #for i in range (0x7eDF, 99*7, -1):
         #    print "\t",hex(i),": ",hex(bf.getIndexedByte(i))
         
         

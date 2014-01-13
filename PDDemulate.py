@@ -251,16 +251,15 @@ class Disk():
 
     def writeSector(self, psn, lsn, indata):
         self.Sectors[psn].write(indata)
-        if psn % 2:
-            filenum =  ((psn-1)/2)+1
-            filename =  'file-%02d.dat' % filenum
-            # we wrote an odd sector, so create the
-            # associated file
-            fn1 = os.path.join(self.filespath, '%02d.dat' % (psn-1))
-            fn2 = os.path.join(self.filespath, '%02d.dat' % psn)
-            outfn =  os.path.join(self.filespath, filename)
-            cmd = 'cat %s %s > %s' % (fn1, fn2, outfn)
-            os.system(cmd)
+        filename =  'file-01.dat'
+        # we wrote an odd sector, so create the
+        # associated file
+
+        fn = os.path.join(self.filespath, '%02d.dat' % psn)
+            
+        outfn =  os.path.join(self.filespath, filename)
+        cmd = 'cat %s >> %s' % (fn, outfn)
+        os.system(cmd)
         return
 
     def readSector(self, psn, lsn):
@@ -284,7 +283,7 @@ class PDDemulator():
 
     def open(self, cport='/dev/ttyUSB0'):
         if self.noserial is False:
-            self.ser = serial.Serial(port=cport, baudrate=9600, parity='N', stopbits=1, timeout=1, xonxoff=0, rtscts=0, dsrdtr=0)
+            self.ser = serial.Serial(port=cport, baudrate=9600, parity='N', stopbits=1, timeout=5, xonxoff=0, rtscts=0, dsrdtr=0)
             if self.ser == None:
                 print 'Unable to open serial device %s' % cport
                 raise IOError
@@ -446,8 +445,12 @@ class PDDemulator():
         elif cmd == 'M':
             # apparently not used by brother knitting machine
             print 'FDC Change Modes'
-            raise
+            # raise - KB: its used by the PDD!
             # following parameter - 0=FDC, 1=Operating
+            inc = self.readchar()
+            # print 'inc = %d' % inc
+            self.handleFDCmodeRequest(inc)
+            # here's hoping!
 
         elif cmd == 'D':
             # apparently not used by brother knitting machine
